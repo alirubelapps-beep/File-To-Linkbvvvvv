@@ -1,0 +1,21 @@
+user_id = options.get("user_id")
+msg_ids = options.get("message_ids", [])
+media_id = options.get("media_id")
+
+# Delete all sent messages
+for mid in msg_ids:
+    try:
+        bot.deleteMessage(chat_id=user_id, message_id=mid)
+    except Exception:
+        pass
+
+# Notify user with restore option
+Bot.sendMessage(
+    chat_id=user_id,
+    text="🗑️ Your files have been deleted from chat after 10 minutes.\n Sile And Security.",
+    reply_markup={
+        "inline_keyboard": [[
+            {"text": "", "url": f"https://t.me/{Bot.info().username}?start={media_id}"}
+        ]]
+    }
+)

@@ -1,0 +1,62 @@
+if not params or params == "None":
+    bot.sendMessage(
+        text=(
+            "<b>📤 Welcome To RUBEL X NETWORK\n\n"
+            "https://t.me/DarkNetworkTipsVip\n"
+        ),
+        parse_mode="html",
+        reply_markup={
+            "inline_keyboard": [[
+                {"text": "START HOME", "callback_data": "/start"}
+            ]]
+        }
+    )
+else:
+    media_id = params
+    files = Bot.getData(media_id)
+
+    if not files:
+        bot.sendMessage("❌ No media found for this link.")
+    else:
+        sent_msgs = []  # store message IDs for later deletion
+
+        # Send all media
+        for f in files:
+            m = None
+            if f["type"] == "photo":
+                m = bot.sendPhoto(f["file_id"], caption=f.get("caption", ""))
+            elif f["type"] == "video":
+                m = bot.sendVideo(f["file_id"], caption=f.get("caption", ""))
+            elif f["type"] == "audio":
+                m = bot.sendAudio(f["file_id"])
+            elif f["type"] == "voice":
+                m = bot.sendVoice(f["file_id"])
+            elif f["type"] == "document":
+                m = bot.sendDocument(f["file_id"])
+            elif f["type"] == "animation":
+                m = bot.sendAnimation(f["file_id"])
+            elif f["type"] == "sticker":
+                m = bot.sendSticker(f["file_id"])
+
+            if m and "message_id" in m:
+                sent_msgs.append(m["message_id"])
+
+        # Final note
+        note = bot.sendMessage(
+            "⚠️ <b>Note:</b> Files will be automatically deleted from chat after <b>10 minutes</b> to prevent spam.",
+            parse_mode="html",
+            reply_markup={
+                "inline_keyboard": [[
+                    {"text": "🔗 Join Channel", "url": "https://t.me/DarkNetworkTipsVip"}
+                ]]
+            }
+        )
+        if "message_id" in note:
+            sent_msgs.append(note["message_id"])
+
+        # Schedule deletion of messages only
+        Bot.runCommandAfter(
+            600,
+            "/delete_messages",
+            options={"user_id": message.chat.id, "message_ids": sent_msgs, "media_id": media_id}
+        )
